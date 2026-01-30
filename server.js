@@ -198,7 +198,7 @@ app.put('/api/profile', requireAuth, (req, res) => {
 });
 
 // Upload profile avatar
-app.post('/api/profile/avatar', requireAuth, upload.single('avatar'), (req, res) => {
+app.post('/api/profile/avatar', requireAuth, upload.single('avatar'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'لم يتم رفع أي صورة' });
   }
