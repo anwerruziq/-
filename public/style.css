@@ -187,7 +187,7 @@ body {
 }
 
 .logo-img {
-    height: 150px;
+    height: 80px;
     width: auto;
 }
 
@@ -320,9 +320,9 @@ body {
 }
 
 .auth-logo {
-    width: 500px;
+    width: 200px;
     height: auto;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 
 .auth-card h1 {
