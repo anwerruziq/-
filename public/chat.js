@@ -253,9 +253,10 @@ socket.on('error', (data) => {
 function displayMessage(msg) {
     const isMe = msg.senderId == user.id || msg.sender_id == user.id;
     const senderName = msg.senderName || msg.sender_name;
+    const senderAvatar = msg.senderAvatar || msg.sender_avatar;
 
     const msgElement = document.createElement('div');
-    msgElement.classList.add('message');
+    msgElement.classList.add('message-wrapper');
     msgElement.classList.add(isMe ? 'outgoing' : 'incoming');
 
     let content = '';
@@ -278,10 +279,15 @@ function displayMessage(msg) {
         content = `<div class="content">${escapeHtml(msg.text)}</div>`;
     }
 
+    const avatarUrl = senderAvatar || generateDefaultAvatar(senderName);
+
     msgElement.innerHTML = `
-        <span class="sender">${isMe ? 'أنت' : senderName}</span>
-        ${content}
-        <span class="timestamp">${formatTime(msg.timestamp)}</span>
+        <img src="${avatarUrl}" class="message-avatar" title="${senderName}">
+        <div class="message-box">
+            <span class="sender">${isMe ? 'أنت' : senderName}</span>
+            ${content}
+            <span class="timestamp">${formatTime(msg.timestamp)}</span>
+        </div>
     `;
 
     messagesContainer.appendChild(msgElement);
@@ -447,10 +453,15 @@ async function inviteUserToRoom(userId, username, button) {
                 inviteMembersModal.style.display = 'none';
 
                 // Add system message to chat
+                const systemWrapper = document.createElement('div');
+                systemWrapper.classList.add('system-message-wrapper');
+
                 const systemMsg = document.createElement('div');
                 systemMsg.classList.add('message', 'system');
                 systemMsg.textContent = `تمت دعوة ${username} للغرفة`;
-                messagesContainer.appendChild(systemMsg);
+
+                systemWrapper.appendChild(systemMsg);
+                messagesContainer.appendChild(systemWrapper);
                 scrollToBottom();
             }, 1000);
         } else {

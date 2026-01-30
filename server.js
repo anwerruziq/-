@@ -422,7 +422,8 @@ app.get('/api/rooms/:roomId/messages', requireAuth, async (req, res) => {
                 m.media_url,
                 m.timestamp,
                 u.id as sender_id,
-                u.username as sender_name
+                u.username as sender_name,
+                u.avatar as sender_avatar
             FROM messages m
             JOIN users u ON m.sender_id = u.id
             WHERE m.room_id = ?
@@ -507,7 +508,7 @@ io.on('connection', (socket) => {
       const messageId = result.lastInsertRowid;
 
       // Get sender info
-      const sender = await db.prepare('SELECT username FROM users WHERE id = ?').get(socket.userId);
+      const sender = await db.prepare('SELECT username, avatar FROM users WHERE id = ?').get(socket.userId);
 
       // Get room members
       const members = await db.prepare('SELECT user_id FROM room_members WHERE room_id = ?').all(roomId);
@@ -527,6 +528,7 @@ io.on('connection', (socket) => {
         id: messageId,
         senderId: socket.userId,
         senderName: sender.username,
+        senderAvatar: sender.avatar,
         text,
         mediaUrl,
         mediaType,
