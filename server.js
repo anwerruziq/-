@@ -29,11 +29,17 @@ if (!fs.existsSync(uploadsDir)) {
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 app.use(express.json());
+// Trust proxy for Render (needed for secure cookies)
+app.set('trust proxy', 1);
+
 app.use(session({
   secret: 'chat-app-secret-key-2024',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Set to true in production with HTTPS
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 1 day
+  }
 }));
 
 // Configure multer for file uploads
@@ -88,10 +94,15 @@ app.post('/api/register', async (req, res) => {
   }
 
   try {
-    // Check if user already exists
-    const existingUser = await db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-    if (existingUser) {
+    // Check if email or username already exists
+    const existingUserByEmail = await db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    if (existingUserByEmail) {
       return res.status(400).json({ error: 'البريد الإلكتروني مستخدم بالفعل' });
+    }
+
+    const existingUserByUsername = await db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+    if (existingUserByUsername) {
+      return res.status(400).json({ error: 'اسم المستخدم هذا محجوز بالفعل، اختر اسماً آخر' });
     }
 
     // Hash password
@@ -113,8 +124,8 @@ app.post('/api/register', async (req, res) => {
 
 // Login
 app.post('/api/login', async (req, res) => {
-  console.log('POST /api/login called');
-  const { identifier, password } = req.body; // Changed from email to identifier
+  const { identifier, password } = req.body;
+  console.log(`Login attempt for: ${identifier}`);
 
   if (!identifier || !password) {
     return res.status(400).json({ error: 'جميع الحقول مطلوبة' });

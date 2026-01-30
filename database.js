@@ -1,11 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const isVercel = process.env.VERCEL;
-const dbPath = isVercel ? ':memory:' : 'chat.db';
+const dbPath = path.join(__dirname, 'chat.db');
 
-if (isVercel) {
-  console.warn('⚠️ Running on Vercel: Data will NOT persist (using in-memory DB)');
-}
 
 console.log('Initializing database at:', dbPath);
 
@@ -24,7 +20,7 @@ function initializeDatabase() {
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT UNIQUE NOT NULL,
-                username TEXT NOT NULL,
+                username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
                 avatar TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
