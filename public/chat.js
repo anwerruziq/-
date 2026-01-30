@@ -62,9 +62,36 @@ const inviteSearchInput = document.getElementById('invite-search-input');
 const inviteSearchBtn = document.getElementById('invite-search-btn');
 const inviteSearchResults = document.getElementById('invite-search-results');
 
+// Emoji Configuration
+const emojiMap = {
+    '😊': '1F60A', '😂': '1F602', '🤣': '1F923', '❤️': '2764',
+    '👍': '1F44D', '😍': '1F60D', '🙏': '1F64F', '✨': '2728',
+    '🔥': '1F525', '🎉': '1F389', '😎': '1F60E', '😢': '1F622',
+    '😡': '1F621', '🤔': '1F914', '🙌': '1F64C', '👋': '1F44B',
+    '💪': '1F4AA', '💯': '1F4AF', '🚀': '1F680', '💀': '1F480',
+    '🥰': '1F970', '🙄': '1F644', '🤫': '1F92B'
+};
+
+function parseEmojis(text) {
+    if (!text) return '';
+    let parsedText = text;
+    Object.entries(emojiMap).forEach(([emoji, hex]) => {
+        const emojiImg = `<img src="https://cdn.jsdelivr.net/npm/openmoji@15.0.0/color/svg/${hex}.svg" class="openmoji" alt="${emoji}">`;
+        parsedText = parsedText.split(emoji).join(emojiImg);
+    });
+    return parsedText;
+}
+
 // Set user and room info
-currentUserSpan.textContent = user.username;
-roomNameSpan.textContent = roomName;
+if (currentUserSpan) {
+    currentUserSpan.textContent = user.username;
+}
+if (roomNameSpan) {
+    roomNameSpan.textContent = roomName;
+}
+if (sidebarRoomName) {
+    sidebarRoomName.textContent = roomName;
+}
 
 // Socket.IO connection
 const socket = io();
@@ -85,12 +112,14 @@ async function loadRoomInfo() {
 
         if (currentRoom) {
             isAdmin = currentRoom.is_admin === 1;
-            roomNameSpan.textContent = currentRoom.name;
+            if (roomNameSpan) {
+                roomNameSpan.textContent = currentRoom.name;
+            }
 
-            if (isAdmin) {
+            if (isAdmin && roomSettingsBtn) {
                 roomSettingsBtn.style.display = 'flex';
-                editRoomName.value = currentRoom.name;
-                editInviteCode.value = currentRoom.invite_code || '';
+                if (editRoomName) editRoomName.value = currentRoom.name;
+                if (editInviteCode) editInviteCode.value = currentRoom.invite_code || '';
             }
         }
     } catch (error) {
@@ -134,6 +163,7 @@ messageInput.addEventListener('input', () => {
     }
 });
 
+
 messageForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const text = messageInput.value.trim();
@@ -142,9 +172,7 @@ messageForm.addEventListener('submit', (e) => {
         socket.emit('send_message', { roomId, text });
         messageInput.value = '';
         sendBtn.innerHTML = "<i class='bx bxs-like'></i>";
-    } else {
-        // Send a Like
-        socket.emit('send_message', { roomId, text: '👍' });
+        messageInput.focus();
     }
 });
 
@@ -299,54 +327,61 @@ document.addEventListener('click', (e) => {
 });
 
 // Room Settings logic
-roomSettingsBtn.addEventListener('click', () => {
-    roomSettingsModal.style.display = 'flex';
-});
+if (roomSettingsBtn && roomSettingsModal) {
+    roomSettingsBtn.addEventListener('click', () => {
+        roomSettingsModal.style.display = 'flex';
+    });
+}
 
-closeSettingsModal.addEventListener('click', () => {
-    roomSettingsModal.style.display = 'none';
-});
+if (closeSettingsModal && roomSettingsModal) {
+    closeSettingsModal.addEventListener('click', () => {
+        roomSettingsModal.style.display = 'none';
+    });
+}
 
-generateCodeBtn.addEventListener('click', () => {
-    const code = Math.random().toString(36).substring(2, 10).toUpperCase();
-    editInviteCode.value = code;
-});
+if (generateCodeBtn && editInviteCode) {
+    generateCodeBtn.addEventListener('click', () => {
+        const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+        editInviteCode.value = code;
+    });
+}
 
-saveRoomSettings.addEventListener('click', async () => {
-    const name = editRoomName.value.trim();
-    const inviteCode = editInviteCode.value.trim();
+if (saveRoomSettings) {
+    saveRoomSettings.addEventListener('click', async () => {
+        if (!editRoomName || !editInviteCode) return;
+        const name = editRoomName.value.trim();
+        const inviteCode = editInviteCode.value.trim();
 
-    if (!name) {
-        showSettingsError('اسم الغرفة مطلوب', 'error');
-        return;
-    }
-
-    try {
-        saveRoomSettings.disabled = true;
-        const response = await fetch(`/api/rooms/${roomId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, inviteCode })
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-            showSettingsError('تم حفظ الإعدادات بنجاح', 'success');
-            roomNameSpan.textContent = name;
-            setTimeout(() => {
-                roomSettingsModal.style.display = 'none';
-                settingsMessage.textContent = '';
-            }, 1500);
-        } else {
-            showSettingsError(data.error || 'فشل تحديث الإعدادات', 'error');
+        if (!name) {
+            showSettingsError('اسم الغرفة مطلوب', 'error');
+            return;
         }
-    } catch (error) {
-        console.error('Save settings error:', error);
-        showSettingsError('حدث خطأ في الاتصال', 'error');
-    } finally {
-        saveRoomSettings.disabled = false;
-    }
-});
+
+        try {
+            saveRoomSettings.disabled = true;
+            const response = await fetch(`/api/rooms/${roomId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, inviteCode })
+            });
+
+            if (response.ok) {
+                showSettingsError('تم حفظ الإعدادات بنجاح', 'success');
+                roomNameSpan.textContent = name;
+                setTimeout(() => {
+                    if (roomSettingsModal) roomSettingsModal.style.display = 'none';
+                }, 1500);
+            } else {
+                showSettingsError('فشل حفظ الإعدادات', 'error');
+            }
+        } catch (error) {
+            console.error('Save room settings error:', error);
+            showSettingsError('خطأ في الاتصال بالسيرفر', 'error');
+        } finally {
+            saveRoomSettings.disabled = false;
+        }
+    });
+}
 
 function showSettingsError(message, type) {
     settingsMessage.textContent = message;
@@ -436,26 +471,8 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-const emojiMap = {
-    '😊': '1F60A', '😂': '1F602', '🤣': '1F923', '❤️': '2764',
-    '👍': '1F44D', '😍': '1F60D', '🙏': '1F64F', '✨': '2728',
-    '🔥': '1F525', '🎉': '1F389', '😎': '1F60E', '😢': '1F622',
-    '😡': '1F621', '🤔': '1F914', '🙌': '1F64C', '👋': '1F44B',
-    '💪': '1F4AA', '💯': '1F4AF', '🚀': '1F680', '💀': '1F480',
-    '🥰': '1F970', '🙄': '1F644', '🤫': '1F92B'
-};
-
-function parseEmojis(text) {
-    let parsedText = text;
-    Object.entries(emojiMap).forEach(([emoji, hex]) => {
-        const emojiImg = `<img src="https://cdn.jsdelivr.net/npm/openmoji@15.0.0/color/svg/${hex}.svg" class="openmoji" alt="${emoji}">`;
-        parsedText = parsedText.split(emoji).join(emojiImg);
-    });
-    return parsedText;
-}
-
 function playNotificationSound() {
-    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGWi77eeeSwwMUKXh8LljHAU7k9r0yXkpBSh+zPLaizsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTP89iJNwgXZrnt5pxKDAxQpeHwuWMcBTuT2vTJeSkFKH7M8tqLOwsRXLHo7KtYFQhDnN3ywW4kBS6Ez/PYiTcIF2a57eacSgwMUKXh8LljHAU7k9r0yXkpBSh+zPLaizsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTP89iJNwgXZrnt5pxKDAxQpeHwuWMcBTuT2vTJeSkFKH7M8tqLOwsRXLHo7KtYFQhDnN3ywW4kBS6Ez/PYiTcIF2a57eacSgwMUKXh8LljHAU7k9r0yXkpBSh+zPLaizsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTP89iJNwgXZrnt5pxKDAxQpeHwuWMcBTuT2vTJeSkFKH7M8tqLOwsRXLHo7KtYFQhDnN3ywW4kBS6Ez/PYiTcIF2a57eacSgwMUKXh8LljHAU7k9r0yXkpBSh+zPLaizsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTP89iJNwgXZrnt5pxKDAxQpeHwuWMcBTuT2vTJeSkFKH7M8tqLOwsRXLHo7KtYFQhDnN3ywW4kBS6Ez/PYiTcIF2a57eacSgwMUKXh8LljHAU7k9r0yXkpBSh+zPLaizsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z2Ik3CBdmue3mnEoMDFCl4fC5Yw==');
+    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGWi77eeeSwwMUKXh8LljHAU7k9r0yXkpBSh+zPLaizsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTPz2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTPz2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTPz2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTPz2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTPz2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTPz2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTPz2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTPz2Ik3CBdmue3mnEoMDFCl4fC5Yw==');
     audio.play().catch(e => console.log('Could not play sound'));
 }
 
@@ -488,8 +505,10 @@ if (menuToggle) {
 if (logoutBtnSidebar) {
     logoutBtnSidebar.addEventListener('click', (e) => {
         e.preventDefault();
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
+        if (confirm('هل أنت متأكد من رغبتك في تسجيل الخروج؟')) {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
     });
 }
 
@@ -515,12 +534,17 @@ inviteMembersModal.addEventListener('click', (e) => {
 });
 
 // Search for users to invite
-inviteSearchBtn.addEventListener('click', searchUsersToInvite);
-inviteSearchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        searchUsersToInvite();
-    }
-});
+if (inviteSearchBtn) {
+    inviteSearchBtn.addEventListener('click', searchUsersToInvite);
+}
+
+if (inviteSearchInput) {
+    inviteSearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchUsersToInvite();
+        }
+    });
+}
 
 async function searchUsersToInvite() {
     const query = inviteSearchInput.value.trim();

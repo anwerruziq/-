@@ -19,11 +19,15 @@ const modalError = document.getElementById('modal-error');
 const logoutBtnSidebar = document.getElementById('logout-btn-sidebar');
 
 // Logout
-logoutBtnSidebar.addEventListener('click', (e) => {
-    e.preventDefault();
-    localStorage.removeItem('user');
-    window.location.href = 'index.html';
-});
+if (logoutBtnSidebar) {
+    logoutBtnSidebar.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (confirm('هل أنت متأكد من رغبتك في تسجيل الخروج؟')) {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    });
+}
 
 // Join room by invite code
 const inviteCodeInput = document.getElementById('invite-code-input');
