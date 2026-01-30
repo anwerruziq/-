@@ -1,7 +1,9 @@
 // بدلاً من require('sqlite3') القديمة
 const Database = require('better-sqlite3');
-const db = new Database('chat.db'); // هذا بينشئ ملف قاعدة البيانات تلقائياً
-
+const path = require('path');
+const isVercel = process.env.VERCEL;
+const dbPath = isVercel ? path.join('/tmp', 'chat.db') : 'chat.db';
+const db = new Database(dbPath);
 // إنشاء الجداول المطلوبة
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
