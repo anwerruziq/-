@@ -235,15 +235,19 @@ function showSettingsError(message, type) {
     settingsMessage.className = `profile-message ${type}`;
 }
 
-// Receive new messages
+// Socket events
 socket.on('new_message', (data) => {
     displayMessage(data);
     scrollToBottom();
 
     // Play notification sound
-    if (data.senderId !== user.id) {
+    if (data.senderId != user.id) {
         playNotificationSound();
     }
+});
+
+socket.on('error', (data) => {
+    alert(data.message || 'حدث خطأ في الاتصال');
 });
 
 function displayMessage(msg) {
