@@ -940,20 +940,44 @@ input:disabled {
 
 .message-image,
 .message-video {
-    max-width: 300px;
-    max-height: 300px;
-    border-radius: 0.5rem;
-    margin-top: 0.5rem;
+    max-width: 100%;
+    width: 320px;
+    height: auto;
+    border-radius: 12px;
+    margin-top: 8px;
     cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: #000;
+}
+
+.message-image:hover,
+.message-video:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .message-audio {
-    width: 100%;
-    max-width: 280px;
-    height: 40px;
-    margin-top: 0.5rem;
-    filter: invert(0.1);
-    opacity: 0.9;
+    width: 280px;
+    height: 45px;
+    margin-top: 8px;
+    border-radius: 25px;
+    background: transparent;
+    filter: invert(0.9) hue-rotate(180deg) brightness(1.2);
+    /* Adjust for dark mode */
+    opacity: 0.95;
+    transition: all 0.2s;
+}
+
+.message-audio:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+}
+
+/* Specific styling for outgoing audio to keep it clean on blue background */
+.outgoing .message-audio {
+    filter: invert(1) brightness(2);
 }
 
 .message-file {
