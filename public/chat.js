@@ -23,8 +23,12 @@ const currentUserSpan = document.getElementById('current-user');
 const roomNameSpan = document.getElementById('room-name');
 const fileInput = document.getElementById('file-input');
 const fileBtn = document.getElementById('file-btn');
-const callBtn = document.getElementById('call-btn');
 const backBtn = document.getElementById('back-btn');
+const voiceBtn = document.getElementById('voice-btn');
+
+let mediaRecorder;
+let audioChunks = [];
+let isRecording = false;
 
 // Emoji elements
 const emojiBtn = document.getElementById('emoji-btn');
@@ -159,6 +163,85 @@ fileInput.addEventListener('change', async (e) => {
         fileInput.value = '';
     }
 });
+
+// Voice Recording logic
+voiceBtn.addEventListener('click', async () => {
+    if (!isRecording) {
+        startRecording();
+    } else {
+        stopRecording();
+    }
+});
+
+async function startRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            await uploadVoiceNote(audioBlob);
+            // Stop all tracks to release the microphone
+            stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+        voiceBtn.classList.add('recording');
+        voiceBtn.innerHTML = "<i class='bx bx-stop-circle'></i>";
+        messageInput.placeholder = "جاري التسجيل... اضغط للتوقف";
+    } catch (error) {
+        console.error('Microphone error:', error);
+        alert('حدث خطأ أثناء الوصول للميكروفون. تأكد من إعطاء الصلاحية.');
+    }
+}
+
+function stopRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        voiceBtn.classList.remove('recording');
+        voiceBtn.innerHTML = "<i class='bx bx-microphone'></i>";
+        messageInput.placeholder = "اكتب رسالة...";
+    }
+}
+
+async function uploadVoiceNote(blob) {
+    const formData = new FormData();
+    const fileName = `voice-note-${Date.now()}.webm`;
+    formData.append('file', blob, fileName);
+
+    try {
+        voiceBtn.disabled = true;
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            socket.emit('send_message', {
+                roomId,
+                text: 'رسالة صوتية',
+                mediaUrl: data.url,
+                mediaType: 'audio'
+            });
+        } else {
+            alert(data.error || 'فشل رفع البصمة الصوتية');
+        }
+    } catch (error) {
+        console.error('Voice upload error:', error);
+        alert('حدث خطأ أثناء إرسال البصمة الصوتية');
+    } finally {
+        voiceBtn.disabled = false;
+    }
+}
 
 // Emoji logic
 emojiBtn.addEventListener('click', (e) => {
