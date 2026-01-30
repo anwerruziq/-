@@ -199,9 +199,10 @@ body {
 }
 
 .nav-item.active {
-    background-color: var(--bg-tertiary);
+    background: var(--bg-glass-heavy);
     color: var(--primary-color);
     border-right: 3px solid var(--primary-color);
+    backdrop-filter: blur(5px);
 }
 
 .nav-icon {
@@ -230,8 +231,9 @@ body {
 
 .page-header {
     padding: 1.5rem 2rem;
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--glass-border);
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -286,14 +288,15 @@ body {
     justify-content: center;
     align-items: center;
     padding: 2rem;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+    background: transparent;
 }
 
 .auth-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
+    background: var(--bg-glass);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
     padding: 3rem;
-    border-radius: 1rem;
+    border-radius: 1.5rem;
     text-align: center;
     width: 90%;
     max-width: 450px;
@@ -423,6 +426,14 @@ input:disabled {
     flex: 1;
     overflow-y: auto;
     padding: 2rem;
+    max-width: 800px;
+    margin: 2rem auto;
+    background: var(--bg-glass);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    padding: 3rem;
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow);
 }
 
 .profile-card {
@@ -519,8 +530,9 @@ input:disabled {
 
 /* ============= Dashboard ============= */
 .dashboard-header {
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--glass-border);
     padding: 1.5rem 2rem;
 }
 
@@ -567,11 +579,13 @@ input:disabled {
 
 .search-section,
 .rooms-section {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 0.75rem;
+    background: var(--bg-glass);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.25rem;
     padding: 2rem;
     margin-bottom: 2rem;
+    box-shadow: var(--shadow);
 }
 
 .search-section h2,
@@ -595,6 +609,12 @@ input:disabled {
 
 .search-box input {
     flex: 1;
+    background: var(--bg-glass-heavy);
+    border: 1px solid var(--glass-border);
+    padding: 0.75rem 1.25rem;
+    border-radius: 2rem;
+    color: var(--text-primary);
+    transition: all 0.2s;
 }
 
 .search-box button {
@@ -623,16 +643,18 @@ input:disabled {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--bg-tertiary);
+    background: var(--bg-glass-heavy);
+    backdrop-filter: blur(5px);
     padding: 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    border: 1px solid var(--glass-border);
     transition: all 0.2s;
 }
 
 .user-result:hover {
-    background: var(--bg-hover);
+    background: rgba(255, 255, 255, 0.15);
     border-color: var(--primary-color);
+    transform: translateY(-2px);
 }
 
 .user-result .user-info {
@@ -1419,6 +1441,8 @@ input:disabled {
         z-index: 1000;
         transition: right 0.3s ease-in-out;
         box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(20px);
     }
 
     .sidebar.open {
