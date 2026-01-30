@@ -13,6 +13,11 @@
 </head>
 
 <body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
     <div class="app-container">
         <!-- Chat Screen (Always visible) -->
         <div id="chat-screen" class="screen active">
@@ -41,20 +46,21 @@
             <!-- Main Content -->
             <main class="main-content">
                 <header class="chat-header">
-                    <button id="menu-toggle" class="menu-toggle"><i class='bx bx-menu'></i></button>
-                    <button id="back-btn" class="back-btn"><i class='bx bx-right-arrow-alt'></i></button>
-                    <div class="room-info">
+                    <div class="header-left">
+                        <button id="menu-toggle" class="menu-toggle"><i class='bx bx-menu'></i></button>
+                        <button id="back-btn" class="back-btn"><i class='bx bx-chevron-right'></i></button>
+                    </div>
+                    <div class="room-info-header" id="header-room-info">
                         <div class="room-name" id="room-name"></div>
-                        <div class="user-info">مسجل كـ <span id="current-user"></span></div>
+                        <div class="room-status">نشط الآن</div>
                     </div>
                     <div class="header-actions">
-                        <button id="room-settings-btn" class="room-settings-btn" title="إعدادات الغرفة"
-                            style="display: none;"><i class='bx bx-cog'></i></button>
-                        <button id="invite-members-btn" class="invite-members-btn" title="دعوة أعضاء"><i
-                                class='bx bx-user-plus'></i></button>
-                        <button id="call-btn" class="call-btn"><i class='bx bx-phone'></i></button>
+                        <button id="call-btn" class="call-btn"><i class='bx bxs-phone'></i></button>
+                        <button id="video-btn" class="video-btn"><i class='bx bxs-video'></i></button>
+                        <button id="info-btn" class="info-btn"><i class='bx bxs-info-circle'></i></button>
                     </div>
                 </header>
+
                 <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
                 <div id="messages-container" class="messages-container">
@@ -62,37 +68,52 @@
                 </div>
 
                 <div class="input-area">
+                    <div class="input-actions-left">
+                        <button type="button" class="action-icon"><i class='bx bxs-plus-circle'></i></button>
+                        <button type="button" class="action-icon"><i class='bx bxs-camera'></i></button>
+                        <button type="button" id="file-btn" class="action-icon"><i class='bx bxs-image'></i></button>
+                        <button type="button" id="voice-btn" class="action-icon"><i
+                                class='bx bxs-microphone'></i></button>
+                    </div>
                     <form id="message-form">
                         <input type="file" id="file-input" style="display: none;"
                             accept="image/*,video/*,audio/*,.pdf,.doc,.docx">
-                        <button type="button" id="file-btn" class="file-btn" title="إرفاق ملف">
-                            <i class='bx bx-paperclip'></i>
-                        </button>
-                        <div class="emoji-wrapper">
-                            <button type="button" id="emoji-btn" class="emoji-btn" title="أيموجي">😊</button>
-                            <div id="emoji-picker" class="emoji-picker" style="display: none;">
-                                <div class="emoji-list">
-                                    <span>😊</span><span>😂</span><span>🤣</span><span>❤️</span><span>👍</span><span>😍</span><span>🙏</span><span>✨</span>
-                                    <span>🔥</span><span>🎉</span><span>😎</span><span>😢</span><span>😡</span><span>🤔</span><span>🙌</span><span>👋</span>
-                                    <span>💪</span><span>💯</span><span>🚀</span><span>💀</span><span>😂</span><span>🥰</span><span>🙄</span><span>🤫</span>
-                                </div>
-                            </div>
+                        <div class="input-wrapper">
+                            <input type="text" id="message-input" placeholder="Aa" autocomplete="off">
+                            <button type="button" id="emoji-btn" class="emoji-btn">😀</button>
                         </div>
-                        <button type="button" id="voice-btn" class="voice-btn" title="تسجيل صوتي">
-                            <i class='bx bx-microphone'></i>
-                        </button>
-                        <input type="text" id="message-input" placeholder="اكتب رسالة..." autocomplete="off">
-                        <button type="submit">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                                <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
+                        <button type="submit" id="send-btn">
+                            <i class='bx bxs-like'></i>
                         </button>
                     </form>
                 </div>
+            </main>
+
+            <!-- Right Sidebar (Info Sidebar) -->
+            <aside class="info-sidebar" id="info-sidebar">
+                <div class="info-header">
+                    <img src="" id="sidebar-room-avatar" class="sidebar-avatar">
+                    <h3 id="sidebar-room-name">اسم الغرفة</h3>
+                    <span class="status-text">نشط الآن</span>
+                </div>
+                <div class="info-sections">
+                    <div class="info-section">
+                        <div class="section-header">إعدادات الغرفة <i class='bx bx-chevron-down'></i></div>
+                    </div>
+                    <div class="info-section">
+                        <div class="section-header">الخصوصية والمساعدة <i class='bx bx-chevron-down'></i></div>
+                    </div>
+                    <div class="info-section">
+                        <div class="section-header">الملفات المشتركة <i class='bx bx-chevron-down'></i></div>
+                        <div class="shared-files" id="shared-files">
+                            <!-- Files will be listed here -->
+                        </div>
+                    </div>
+                    <div class="info-section">
+                        <div class="section-header">الصور المشتركة <i class='bx bx-chevron-down'></i></div>
+                    </div>
+                </div>
+            </aside>
         </div>
     </div>
 

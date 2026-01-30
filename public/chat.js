@@ -44,6 +44,14 @@ const generateCodeBtn = document.getElementById('generate-code-btn');
 const saveRoomSettings = document.getElementById('save-room-settings');
 const settingsMessage = document.getElementById('settings-message');
 
+// New Messenger UI Elements
+const infoBtn = document.getElementById('info-btn');
+const infoSidebar = document.getElementById('info-sidebar');
+const sendBtn = document.getElementById('send-btn');
+const sidebarRoomName = document.getElementById('sidebar-room-name');
+const sidebarRoomAvatar = document.getElementById('sidebar-room-avatar');
+const headerRoomInfo = document.getElementById('header-room-info');
+
 let isAdmin = false;
 
 // Invite members modal elements
@@ -107,19 +115,39 @@ async function loadMessages() {
     }
 }
 
-// Send message
+// Messenger UI Toggles
+if (infoBtn) {
+    infoBtn.addEventListener('click', () => {
+        infoSidebar.classList.toggle('open');
+    });
+}
+
+// Like button logic
+messageInput.addEventListener('input', () => {
+    if (messageInput.value.trim().length > 0) {
+        sendBtn.innerHTML = "<i class='bx bxs-send'></i>";
+    } else {
+        sendBtn.innerHTML = "<i class='bx bxs-like'></i>";
+    }
+});
+
 messageForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const text = messageInput.value.trim();
 
     if (text) {
-        socket.emit('send_message', {
-            roomId,
-            text
-        });
+        socket.emit('send_message', { roomId, text });
         messageInput.value = '';
+        sendBtn.innerHTML = "<i class='bx bxs-like'></i>";
+    } else {
+        // Send a Like
+        socket.emit('send_message', { roomId, text: '👍' });
     }
 });
+
+// file input handling through image icon
+document.getElementById('file-btn').addEventListener('click', () => fileInput.click());
+
 
 // File upload
 fileBtn.addEventListener('click', () => {
