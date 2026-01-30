@@ -11,7 +11,13 @@ const db = require('./database');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  },
+  transports: ['polling', 'websocket']
+});
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -82,7 +88,7 @@ app.post('/api/register', async (req, res) => {
 
   try {
     // Check if user already exists
-    const existingUser = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+    const existingUser = await db.prepare('SELECT * FROM users WHERE email = ?').get(email);
     if (existingUser) {
       return res.status(400).json({ error: 'البريد الإلكتروني مستخدم بالفعل' });
     }
@@ -91,7 +97,7 @@ app.post('/api/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert user
-    const result = db.prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)').run(username, email, hashedPassword);
+    const result = await db.prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)').run(username, email, hashedPassword);
 
     res.json({
       success: true,
@@ -114,7 +120,7 @@ app.post('/api/login', async (req, res) => {
 
   try {
     // Check for both email or username
-    const user = db.prepare('SELECT * FROM users WHERE email = ? OR username = ?').get(identifier, identifier);
+    const user = await db.prepare('SELECT * FROM users WHERE email = ? OR username = ?').get(identifier, identifier);
 
     if (!user) {
       return res.status(401).json({ error: 'بيانات الدخول غير صحيحة' });
@@ -200,7 +206,7 @@ app.post('/api/profile/avatar', requireAuth, upload.single('avatar'), (req, res)
   const avatarUrl = `/uploads/${req.file.filename}`;
 
   try {
-    db.prepare('UPDATE users SET avatar = ? WHERE id = ?').run(avatarUrl, req.session.userId);
+    await db.prepare('UPDATE users SET avatar = ? WHERE id = ?').run(avatarUrl, req.session.userId);
 
     res.json({
       success: true,
@@ -213,7 +219,7 @@ app.post('/api/profile/avatar', requireAuth, upload.single('avatar'), (req, res)
 });
 
 // Search users
-app.get('/api/users/search', requireAuth, (req, res) => {
+app.get('/api/users/search', requireAuth, async (req, res) => {
   const query = req.query.q || '';
 
   if (!query) {
@@ -221,7 +227,7 @@ app.get('/api/users/search', requireAuth, (req, res) => {
   }
 
   try {
-    const users = db.prepare(`
+    const users = await db.prepare(`
             SELECT id, username, email 
             FROM users 
             WHERE (username LIKE ? OR email LIKE ?) AND id != ?
@@ -236,9 +242,9 @@ app.get('/api/users/search', requireAuth, (req, res) => {
 });
 
 // Get user's rooms
-app.get('/api/rooms', requireAuth, (req, res) => {
+app.get('/api/rooms', requireAuth, async (req, res) => {
   try {
-    const rooms = db.prepare(`
+    const rooms = await db.prepare(`
             SELECT 
                 r.id, 
                 r.name, 
@@ -268,7 +274,7 @@ app.get('/api/rooms', requireAuth, (req, res) => {
 });
 
 // Create room
-app.post('/api/rooms', requireAuth, (req, res) => {
+app.post('/api/rooms', requireAuth, async (req, res) => {
   const { name } = req.body;
 
   if (!name) {
@@ -280,10 +286,10 @@ app.post('/api/rooms', requireAuth, (req, res) => {
     const inviteCode = Math.random().toString(36).substring(2, 10).toUpperCase();
 
     // Create room
-    db.prepare('INSERT INTO rooms (id, name, invite_code, creator_id) VALUES (?, ?, ?, ?)').run(roomId, name, inviteCode, req.session.userId);
+    await db.prepare('INSERT INTO rooms (id, name, invite_code, creator_id) VALUES (?, ?, ?, ?)').run(roomId, name, inviteCode, req.session.userId);
 
     // Add creator as admin member
-    db.prepare('INSERT INTO room_members (room_id, user_id, is_admin) VALUES (?, ?, 1)').run(roomId, req.session.userId);
+    await db.prepare('INSERT INTO room_members (room_id, user_id, is_admin) VALUES (?, ?, 1)').run(roomId, req.session.userId);
 
     // Emit event to all connected clients
     io.emit('room_created', { roomId, name });
@@ -384,18 +390,18 @@ app.post('/api/rooms/:roomId/members', requireAuth, (req, res) => {
 });
 
 // Get room messages
-app.get('/api/rooms/:roomId/messages', requireAuth, (req, res) => {
+app.get('/api/rooms/:roomId/messages', requireAuth, async (req, res) => {
   const { roomId } = req.params;
 
   try {
     // Check if user is member
-    const membership = db.prepare('SELECT * FROM room_members WHERE room_id = ? AND user_id = ?').get(roomId, req.session.userId);
+    const membership = await db.prepare('SELECT * FROM room_members WHERE room_id = ? AND user_id = ?').get(roomId, req.session.userId);
 
     if (!membership) {
       return res.status(403).json({ error: 'ليس لديك صلاحية لعرض هذه الغرفة' });
     }
 
-    const messages = db.prepare(`
+    const messages = await db.prepare(`
             SELECT 
                 m.id,
                 m.text,
@@ -436,11 +442,11 @@ app.post('/api/upload', requireAuth, upload.single('file'), (req, res) => {
 });
 
 // Mark notifications as read
-app.post('/api/notifications/read', requireAuth, (req, res) => {
+app.post('/api/notifications/read', requireAuth, async (req, res) => {
   const { roomId } = req.body;
 
   try {
-    db.prepare('UPDATE notifications SET is_read = 1 WHERE user_id = ? AND room_id = ?').run(req.session.userId, roomId);
+    await db.prepare('UPDATE notifications SET is_read = 1 WHERE user_id = ? AND room_id = ?').run(req.session.userId, roomId);
     res.json({ success: true });
   } catch (error) {
     console.error('Mark read error:', error);
@@ -476,7 +482,7 @@ io.on('connection', (socket) => {
 
     try {
       // Save message
-      const result = db.prepare('INSERT INTO messages (sender_id, room_id, text, media_url, media_type) VALUES (?, ?, ?, ?, ?)').run(
+      const result = await db.prepare('INSERT INTO messages (sender_id, room_id, text, media_url, media_type) VALUES (?, ?, ?, ?, ?)').run(
         socket.userId,
         roomId,
         text || null,
@@ -487,18 +493,18 @@ io.on('connection', (socket) => {
       const messageId = result.lastInsertRowid;
 
       // Get sender info
-      const sender = db.prepare('SELECT username FROM users WHERE id = ?').get(socket.userId);
+      const sender = await db.prepare('SELECT username FROM users WHERE id = ?').get(socket.userId);
 
       // Get room members
-      const members = db.prepare('SELECT user_id FROM room_members WHERE room_id = ?').all(roomId);
+      const members = await db.prepare('SELECT user_id FROM room_members WHERE room_id = ?').all(roomId);
 
       // Create notifications for other members
       const notificationStmt = db.prepare('INSERT INTO notifications (user_id, room_id, message_id) VALUES (?, ?, ?)');
-      members.forEach(member => {
+      for (const member of members) {
         if (member.user_id !== socket.userId) {
-          notificationStmt.run(member.user_id, roomId, messageId);
+          await notificationStmt.run(member.user_id, roomId, messageId);
         }
-      });
+      }
 
       // Broadcast message to room
       io.to(roomId).emit('new_message', {
