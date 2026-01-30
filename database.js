@@ -1,7 +1,11 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const isVercel = process.env.VERCEL;
-const dbPath = isVercel ? path.join('/tmp', 'chat.db') : 'chat.db';
+const dbPath = isVercel ? ':memory:' : 'chat.db';
+
+if (isVercel) {
+  console.warn('⚠️ Running on Vercel: Data will NOT persist (using in-memory DB)');
+}
 
 console.log('Initializing database at:', dbPath);
 

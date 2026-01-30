@@ -76,6 +76,7 @@ function requireAuth(req, res, next) {
 
 // Register
 app.post('/api/register', async (req, res) => {
+  console.log('POST /api/register called');
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
@@ -112,6 +113,7 @@ app.post('/api/register', async (req, res) => {
 
 // Login
 app.post('/api/login', async (req, res) => {
+  console.log('POST /api/login called');
   const { identifier, password } = req.body; // Changed from email to identifier
 
   if (!identifier || !password) {
