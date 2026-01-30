@@ -374,11 +374,11 @@ app.post('/api/rooms/:roomId/members', requireAuth, (req, res) => {
   const { userId } = req.body;
 
   try {
-    // Check if requester is admin
-    const membership = db.prepare('SELECT is_admin FROM room_members WHERE room_id = ? AND user_id = ?').get(roomId, req.session.userId);
+    // Check if requester is member
+    const membership = db.prepare('SELECT id FROM room_members WHERE room_id = ? AND user_id = ?').get(roomId, req.session.userId);
 
-    if (!membership || !membership.is_admin) {
-      return res.status(403).json({ error: 'ليس لديك صلاحية لإضافة أعضاء' });
+    if (!membership) {
+      return res.status(403).json({ error: 'يجب أن تكون عضواً في الغرفة لتدعو الآخرين' });
     }
 
     // Add member
@@ -470,8 +470,9 @@ io.on('connection', (socket) => {
   });
 
   socket.on('join_room', (roomId) => {
-    socket.join(roomId);
-    console.log(`User ${socket.userId} joined room ${roomId}`);
+    const rId = String(roomId);
+    socket.join(rId);
+    console.log(`User ${socket.userId} joined room ${rId}`);
   });
 
   socket.on('leave_room', (roomId) => {
@@ -509,7 +510,9 @@ io.on('connection', (socket) => {
       }
 
       // Broadcast message to room
-      io.to(roomId).emit('new_message', {
+      const rId = String(roomId);
+      console.log(`Broadcasting message to room ${rId}:`, text);
+      io.to(rId).emit('new_message', {
         id: messageId,
         senderId: socket.userId,
         senderName: sender.username,

@@ -247,7 +247,7 @@ socket.on('new_message', (data) => {
 });
 
 function displayMessage(msg) {
-    const isMe = msg.senderId === user.id || msg.sender_id === user.id;
+    const isMe = msg.senderId == user.id || msg.sender_id == user.id;
     const senderName = msg.senderName || msg.sender_name;
 
     const msgElement = document.createElement('div');
