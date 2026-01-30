@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 
 <body>
@@ -23,15 +24,15 @@
 
                 <nav class="sidebar-nav">
                     <a href="dashboard.html" class="nav-item">
-                        <span class="nav-icon">🏠</span>
+                        <i class='bx bxs-home nav-icon'></i>
                         <span class="nav-text">الرئيسية</span>
                     </a>
                     <a href="profile.html" class="nav-item">
-                        <span class="nav-icon">👤</span>
+                        <i class='bx bxs-user-circle nav-icon'></i>
                         <span class="nav-text">البروفايل</span>
                     </a>
                     <a href="#" id="logout-btn-sidebar" class="nav-item">
-                        <span class="nav-icon">🚪</span>
+                        <i class='bx bx-log-out-circle nav-icon'></i>
                         <span class="nav-text">تسجيل الخروج</span>
                     </a>
                 </nav>
@@ -40,17 +41,18 @@
             <!-- Main Content -->
             <main class="main-content">
                 <header class="chat-header">
-                    <button id="menu-toggle" class="menu-toggle">☰</button>
-                    <button id="back-btn" class="back-btn">←</button>
+                    <button id="menu-toggle" class="menu-toggle"><i class='bx bx-menu'></i></button>
+                    <button id="back-btn" class="back-btn"><i class='bx bx-right-arrow-alt'></i></button>
                     <div class="room-info">
                         <div class="room-name" id="room-name"></div>
                         <div class="user-info">مسجل كـ <span id="current-user"></span></div>
                     </div>
                     <div class="header-actions">
                         <button id="room-settings-btn" class="room-settings-btn" title="إعدادات الغرفة"
-                            style="display: none;">⚙️</button>
-                        <button id="invite-members-btn" class="invite-members-btn" title="دعوة أعضاء">👥</button>
-                        <button id="call-btn" class="call-btn">📞</button>
+                            style="display: none;"><i class='bx bx-cog'></i></button>
+                        <button id="invite-members-btn" class="invite-members-btn" title="دعوة أعضاء"><i
+                                class='bx bx-user-plus'></i></button>
+                        <button id="call-btn" class="call-btn"><i class='bx bx-phone'></i></button>
                     </div>
                 </header>
                 <div id="sidebar-overlay" class="sidebar-overlay"></div>

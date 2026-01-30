@@ -94,17 +94,20 @@ body {
     border-right: 3px solid var(--primary-color);
 }
 
-.nav-item.active .nav-icon {
-    filter: drop-shadow(0 0 5px var(--primary-color));
+.nav-icon {
+    font-size: 1.5rem;
+    transition: transform 0.2s;
 }
 
-.nav-icon {
-    font-size: 1.25rem;
+.nav-item:hover .nav-icon {
+    transform: scale(1.1);
 }
+
+
 
 .nav-text {
-    font-size: 0.95rem;
-    font-weight: 500;
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 /* ============= Main Content ============= */
@@ -1084,14 +1087,25 @@ input:disabled {
     .call-btn,
     .back-btn,
     .menu-toggle {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
-        border-radius: 0.5rem;
+        width: 44px;
+        height: 44px;
+        font-size: 1.25rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .invite-members-btn i,
+    .call-btn i,
+    .back-btn i,
+    .menu-toggle i {
+        font-size: 1.5rem;
     }
 
     .message {
-        max-width: 85%;
+        max-width: 92%;
+        font-size: 0.95rem;
     }
 
     .input-area {
