@@ -628,3 +628,28 @@ socket.on('call_ended', () => {
 if (Notification.permission === 'default') {
     Notification.requestPermission();
 }
+
+function generateDefaultAvatar(name) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+    const context = canvas.getContext('2d');
+
+    // Generate background color based on name
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const color = `hsl(${Math.abs(hash) % 360}, 65%, 50%)`;
+
+    context.fillStyle = color;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.font = 'bold 50px Arial';
+    context.fillStyle = '#FFFFFF';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(name.charAt(0).toUpperCase(), canvas.width / 2, canvas.height / 2);
+
+    return canvas.toDataURL();
+}
