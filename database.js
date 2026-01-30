@@ -95,7 +95,13 @@ db.prepare = function (sql) {
       db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows));
     }),
     run: (...params) => new Promise((resolve, reject) => {
-      db.run(sql, params, function (err) { err ? reject(err) : resolve(this); });
+      db.run(sql, params, function (err) {
+        if (err) reject(err);
+        else resolve({
+          lastInsertRowid: this.lastID,
+          changes: this.changes
+        });
+      });
     })
   };
 };

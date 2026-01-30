@@ -145,7 +145,6 @@ logoutBtnSidebar.addEventListener('click', (e) => {
     window.location.href = 'index.html';
 });
 
-// Mobile Sidebar Toggle
 const menuToggle = document.getElementById('menu-toggle');
 const sidebar = document.querySelector('.sidebar');
 const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -155,7 +154,9 @@ if (menuToggle) {
         sidebar.classList.toggle('open');
         sidebarOverlay.classList.toggle('active');
     });
+}
 
+if (sidebarOverlay) {
     sidebarOverlay.addEventListener('click', () => {
         sidebar.classList.remove('open');
         sidebarOverlay.classList.remove('active');
