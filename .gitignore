@@ -1,0 +1,7 @@
+node_modules/
+chat.db
+chat.db-journal
+uploads/*
+!uploads/.gitkeep
+.env
+.DS_Store

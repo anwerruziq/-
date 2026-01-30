@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>هدرة - غرفة الدردشة</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Chat Screen (Always visible) -->
+        <div id="chat-screen" class="screen active">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="app-logo">💬 هدرة</div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="dashboard.html" class="nav-item">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">الرئيسية</span>
+                    </a>
+                    <a href="profile.html" class="nav-item">
+                        <span class="nav-icon">👤</span>
+                        <span class="nav-text">البروفايل</span>
+                    </a>
+                    <a href="#" id="logout-btn-sidebar" class="nav-item">
+                        <span class="nav-icon">🚪</span>
+                        <span class="nav-text">تسجيل الخروج</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <header class="chat-header">
+                    <button id="menu-toggle" class="menu-toggle">☰</button>
+                    <button id="back-btn" class="back-btn">←</button>
+                    <div class="room-info">
+                        <div class="room-name" id="room-name"></div>
+                        <div class="user-info">مسجل كـ <span id="current-user"></span></div>
+                    </div>
+                    <div class="header-actions">
+                        <button id="room-settings-btn" class="room-settings-btn" title="إعدادات الغرفة"
+                            style="display: none;">⚙️</button>
+                        <button id="invite-members-btn" class="invite-members-btn" title="دعوة أعضاء">👥</button>
+                        <button id="call-btn" class="call-btn">📞</button>
+                    </div>
+                </header>
+                <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+                <div id="messages-container" class="messages-container">
+                    <!-- Messages will appear here -->
+                </div>
+
+                <div class="input-area">
+                    <form id="message-form">
+                        <input type="file" id="file-input" style="display: none;"
+                            accept="image/*,video/*,audio/*,.pdf,.doc,.docx">
+                        <button type="button" id="file-btn" class="file-btn" title="إرفاق ملف">📎</button>
+                        <div class="emoji-wrapper">
+                            <button type="button" id="emoji-btn" class="emoji-btn" title="أيموجي">😊</button>
+                            <div id="emoji-picker" class="emoji-picker" style="display: none;">
+                                <div class="emoji-list">
+                                    <span>😊</span><span>😂</span><span>🤣</span><span>❤️</span><span>👍</span><span>😍</span><span>🙏</span><span>✨</span>
+                                    <span>🔥</span><span>🎉</span><span>😎</span><span>😢</span><span>😡</span><span>🤔</span><span>🙌</span><span>👋</span>
+                                    <span>💪</span><span>💯</span><span>🚀</span><span>💀</span><span>😂</span><span>🥰</span><span>🙄</span><span>🤫</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="text" id="message-input" placeholder="اكتب رسالة..." autocomplete="off">
+                        <button type="submit">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+        </div>
+
+        <!-- Invite Members Modal -->
+        ... (يبقى كما هو)
+
+        <!-- Room Settings Modal -->
+        <div id="room-settings-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>إعدادات الغرفة</h3>
+                    <button class="close-modal" id="close-settings-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label for="edit-room-name">اسم الغرفة</label>
+                        <input type="text" id="edit-room-name" placeholder="اسم الغرفة الجديد">
+                    </div>
+                    <div class="input-group">
+                        <label for="edit-invite-code">كود الدعوة</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="edit-invite-code" placeholder="كود مخصص أو اتركه فارغاً">
+                            <button id="generate-code-btn" class="secondary-btn">توليد</button>
+                        </div>
+                        <small style="color: var(--text-secondary); margin-top: 5px; display: block;">كود الدعوة يسمح
+                            للآخرين بالانضمام للغرفة مباشرة.</small>
+                    </div>
+                    <div id="settings-message" class="profile-message"></div>
+                    <button id="save-room-settings" class="primary-btn">حفظ التغييرات</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="chat.js"></script>
+</body>
+
+</html>

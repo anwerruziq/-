@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>هدرة - لوحة التحكم</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <div id="dashboard-screen" class="screen active">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="app-logo">💬 هدرة</div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="dashboard.html" class="nav-item active">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">الرئيسية</span>
+                    </a>
+                    <a href="profile.html" class="nav-item">
+                        <span class="nav-icon">👤</span>
+                        <span class="nav-text">البروفايل</span>
+                    </a>
+                    <a href="#" id="logout-btn-sidebar" class="nav-item">
+                        <span class="nav-icon">🚪</span>
+                        <span class="nav-text">تسجيل الخروج</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <header class="page-header">
+                    <button id="menu-toggle" class="menu-toggle">☰</button>
+                    <h1>لوحة التحكم</h1>
+                </header>
+                <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+                <div class="dashboard-content">
+                    <!-- Search Section -->
+                    <section class="search-section">
+                        <h2>البحث عن مستخدمين</h2>
+                        <div class="search-box">
+                            <input type="text" id="search-input"
+                                placeholder="ابحث عن مستخدم بالاسم أو البريد الإلكتروني...">
+                            <button id="search-btn">🔍</button>
+                        </div>
+                        <div id="search-results" class="search-results"></div>
+                    </section>
+
+                    <!-- Join Room Section -->
+                    <section class="rooms-section">
+                        <h2>الانضمام عبر كود دعوة</h2>
+                        <div class="search-box">
+                            <input type="text" id="invite-code-input" placeholder="أدخل كود الدعوة (مثال: ABCD123)...">
+                            <button id="join-room-btn">انضمام</button>
+                        </div>
+                    </section>
+
+                    <!-- Rooms Section -->
+                    <section class="rooms-section">
+                        <div class="section-header">
+                            <h2>غرف الدردشة</h2>
+                            <button id="create-room-btn" class="primary-btn">+ إنشاء غرفة جديدة</button>
+                        </div>
+                        <div id="rooms-list" class="rooms-list">
+                            <div class="loading">جاري تحميل الغرف...</div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+
+        <!-- Create Room Modal -->
+        <div id="create-room-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>إنشاء غرفة جديدة</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label for="room-name-input">اسم الغرفة</label>
+                        <input type="text" id="room-name-input" placeholder="أدخل اسم الغرفة">
+                    </div>
+                    <div id="modal-error" class="error-message"></div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancel-room-btn" class="secondary-btn">إلغاء</button>
+                    <button id="confirm-create-room-btn" class="primary-btn">إنشاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invite User Modal -->
+        <div id="invite-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>دعوة مستخدم للغرفة</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>هل تريد دعوة <strong id="invite-username"></strong> للانضمام إلى الغرفة؟</p>
+                    <input type="hidden" id="invite-user-id">
+                    <input type="hidden" id="invite-room-id">
+                </div>
+                <div class="modal-footer">
+                    <button id="cancel-invite-btn" class="secondary-btn">إلغاء</button>
+                    <button id="confirm-invite-btn" class="primary-btn">دعوة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

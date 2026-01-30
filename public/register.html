@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>هدرة - إنشاء حساب</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <div id="register-screen" class="screen active">
+            <div class="auth-card">
+                <h1>إنشاء حساب جديد</h1>
+                <p>انضم إلى مجتمع الدردشة</p>
+
+                <form id="register-form">
+                    <div class="input-group">
+                        <label for="username-input">اسم المستخدم</label>
+                        <input type="text" id="username-input" placeholder="اختر اسم مستخدم" autocomplete="off"
+                            required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="email-input">البريد الإلكتروني</label>
+                        <input type="email" id="email-input" placeholder="أدخل بريدك الإلكتروني" autocomplete="off"
+                            required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password-input">كلمة المرور</label>
+                        <input type="password" id="password-input" placeholder="اختر كلمة مرور قوية" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="confirm-password-input">تأكيد كلمة المرور</label>
+                        <input type="password" id="confirm-password-input" placeholder="أعد إدخال كلمة المرور" required>
+                    </div>
+
+                    <div id="error-message" class="error-message"></div>
+
+                    <button type="submit" id="register-btn" class="primary-btn">إنشاء حساب</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>لديك حساب بالفعل؟ <a href="index.html">تسجيل الدخول</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="register.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>هدرة - البروفايل</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <div id="profile-screen" class="screen active">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="app-logo">💬 هدرة</div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="dashboard.html" class="nav-item">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">الرئيسية</span>
+                    </a>
+                    <a href="profile.html" class="nav-item active">
+                        <span class="nav-icon">👤</span>
+                        <span class="nav-text">البروفايل</span>
+                    </a>
+                    <a href="#" id="logout-btn-sidebar" class="nav-item">
+                        <span class="nav-icon">🚪</span>
+                        <span class="nav-text">تسجيل الخروج</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <header class="page-header">
+                    <button id="menu-toggle" class="menu-toggle">☰</button>
+                    <h1>البروفايل الشخصي</h1>
+                </header>
+                <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+                <div class="profile-container">
+                    <div class="profile-card">
+                        <div class="profile-avatar-section">
+                            <div class="avatar-wrapper">
+                                <img id="avatar-preview" src="" alt="صورة البروفايل" class="profile-avatar-large">
+                                <div class="avatar-overlay">
+                                    <label for="avatar-input" class="avatar-upload-btn">
+                                        📷 تغيير الصورة
+                                    </label>
+                                </div>
+                            </div>
+                            <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                        </div>
+
+                        <div class="profile-form">
+                            <div class="form-group">
+                                <label for="username-input">اسم المستخدم</label>
+                                <input type="text" id="username-input" placeholder="أدخل اسم المستخدم">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email-display">البريد الإلكتروني</label>
+                                <input type="email" id="email-display" readonly disabled>
+                            </div>
+
+                            <div id="profile-message" class="profile-message"></div>
+
+                            <button id="save-profile-btn" class="primary-btn">حفظ التغييرات</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="profile.js"></script>
+</body>
+
+</html>
