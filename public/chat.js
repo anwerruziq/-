@@ -119,6 +119,9 @@ async function loadMessages() {
 if (infoBtn) {
     infoBtn.addEventListener('click', () => {
         infoSidebar.classList.toggle('open');
+        if (sidebarOverlay) {
+            sidebarOverlay.classList.toggle('active', infoSidebar.classList.contains('open'));
+        }
     });
 }
 
@@ -277,11 +280,15 @@ emojiBtn.addEventListener('click', (e) => {
     emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
 });
 
-document.querySelectorAll('.emoji-list span').forEach(emoji => {
-    emoji.addEventListener('click', () => {
-        messageInput.value += emoji.textContent;
+document.querySelectorAll('.emoji-list span').forEach(emojiSpan => {
+    emojiSpan.addEventListener('click', () => {
+        const emoji = emojiSpan.getAttribute('data-emoji');
+        messageInput.value += emoji;
         emojiPicker.style.display = 'none';
         messageInput.focus();
+
+        // Trigger input event to update like button status
+        messageInput.dispatchEvent(new Event('input'));
     });
 });
 
@@ -387,7 +394,7 @@ function displayMessage(msg) {
             content = `<a href="${mediaUrl}" target="_blank" class="message-file">📄 ${msg.text}</a>`;
         }
     } else {
-        content = `<div class="content">${escapeHtml(msg.text)}</div>`;
+        content = `<div class="content">${parseEmojis(escapeHtml(msg.text))}</div>`;
     }
 
     const avatarUrl = senderAvatar || generateDefaultAvatar(senderName);
@@ -429,6 +436,24 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+const emojiMap = {
+    '😊': '1F60A', '😂': '1F602', '🤣': '1F923', '❤️': '2764',
+    '👍': '1F44D', '😍': '1F60D', '🙏': '1F64F', '✨': '2728',
+    '🔥': '1F525', '🎉': '1F389', '😎': '1F60E', '😢': '1F622',
+    '😡': '1F621', '🤔': '1F914', '🙌': '1F64C', '👋': '1F44B',
+    '💪': '1F4AA', '💯': '1F4AF', '🚀': '1F680', '💀': '1F480',
+    '🥰': '1F970', '🙄': '1F644', '🤫': '1F92B'
+};
+
+function parseEmojis(text) {
+    let parsedText = text;
+    Object.entries(emojiMap).forEach(([emoji, hex]) => {
+        const emojiImg = `<img src="https://cdn.jsdelivr.net/npm/openmoji@15.0.0/color/svg/${hex}.svg" class="openmoji" alt="${emoji}">`;
+        parsedText = parsedText.split(emoji).join(emojiImg);
+    });
+    return parsedText;
+}
+
 function playNotificationSound() {
     const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGWi77eeeSwwMUKXh8LljHAU7k9r0yXkpBSh+zPLaizsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTP89iJNwgXZrnt5pxKDAxQpeHwuWMcBTuT2vTJeSkFKH7M8tqLOwsRXLHo7KtYFQhDnN3ywW4kBS6Ez/PYiTcIF2a57eacSgwMUKXh8LljHAU7k9r0yXkpBSh+zPLaizsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTP89iJNwgXZrnt5pxKDAxQpeHwuWMcBTuT2vTJeSkFKH7M8tqLOwsRXLHo7KtYFQhDnN3ywW4kBS6Ez/PYiTcIF2a57eacSgwMUKXh8LljHAU7k9r0yXkpBSh+zPLaizsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTP89iJNwgXZrnt5pxKDAxQpeHwuWMcBTuT2vTJeSkFKH7M8tqLOwsRXLHo7KtYFQhDnN3ywW4kBS6Ez/PYiTcIF2a57eacSgwMUKXh8LljHAU7k9r0yXkpBSh+zPLaizsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z2Ik3CBdmue3mnEoMDFCl4fC5YxwFO5Pa9Ml5KQUofszy2os7ChJcsejsq1gVCEOc3fLBbiQFLoTP89iJNwgXZrnt5pxKDAxQpeHwuWMcBTuT2vTJeSkFKH7M8tqLOwsRXLHo7KtYFQhDnN3ywW4kBS6Ez/PYiTcIF2a57eacSgwMUKXh8LljHAU7k9r0yXkpBSh+zPLaizsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z2Ik3CBdmue3mnEoMDFCl4fC5Yw==');
     audio.play().catch(e => console.log('Could not play sound'));
@@ -454,6 +479,7 @@ if (menuToggle) {
 
     sidebarOverlay.addEventListener('click', () => {
         sidebar.classList.remove('open');
+        infoSidebar.classList.remove('open');
         sidebarOverlay.classList.remove('active');
     });
 }

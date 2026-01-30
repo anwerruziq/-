@@ -31,8 +31,10 @@ body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
+    min-height: 100dvh;
     overflow: hidden;
     position: relative;
+    width: 100vw;
 }
 
 /* Background Blobs */
@@ -91,24 +93,27 @@ body {
 }
 
 .app-container {
-    width: 100%;
+    width: 100vw;
     height: 100vh;
+    height: 100dvh;
     display: flex;
     position: relative;
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
+    background: transparent;
+    border: none;
+    overflow: hidden;
 }
 
 .chat-header {
     height: 70px;
     padding: 0 1.5rem;
-    background: rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
+    background: rgba(15, 15, 15, 0.8);
+    backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--glass-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+    z-index: 100;
 }
 
 .header-left {
@@ -168,13 +173,22 @@ body {
 
 .sidebar-header {
     padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--glass-border);
 }
 
 .app-logo {
-    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--primary-color);
+}
+
+.logo-img {
+    height: 150px;
+    width: auto;
 }
 
 .sidebar-nav {
@@ -270,10 +284,12 @@ body {
     background: rgba(0, 0, 0, 0.7);
     z-index: 90;
     backdrop-filter: blur(4px);
+    pointer-events: none;
 }
 
 .sidebar-overlay.active {
     display: block;
+    pointer-events: auto;
 }
 
 .page-header h1 {
@@ -301,6 +317,12 @@ body {
     width: 90%;
     max-width: 450px;
     box-shadow: var(--shadow);
+}
+
+.auth-logo {
+    width: 500px;
+    height: auto;
+    margin-bottom: 3rem;
 }
 
 .auth-card h1 {
@@ -1060,6 +1082,13 @@ input:disabled {
     align-self: flex-end;
 }
 
+.openmoji {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin: 0 2px;
+}
+
 .outgoing .message-box .timestamp {
     color: rgba(255, 255, 255, 0.7);
 }
@@ -1067,10 +1096,14 @@ input:disabled {
 /* Input Area Overhaul */
 .input-area {
     padding: 1rem 1.5rem;
-    background: transparent;
+    background: rgba(15, 15, 15, 0.8);
+    backdrop-filter: blur(20px);
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    position: relative;
+    z-index: 100;
+    border-top: 1px solid var(--glass-border);
 }
 
 .input-actions-left {
@@ -1432,110 +1465,112 @@ input:disabled {
         justify-content: center;
     }
 
+    /* Fixed sidebars for mobile */
     .sidebar {
         position: fixed;
         right: -280px;
         left: auto;
         top: 0;
         bottom: 0;
-        z-index: 1000;
+        width: 280px;
+        z-index: 2000;
         transition: right 0.3s ease-in-out;
         box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
-        background: rgba(0, 0, 0, 0.8);
+        background: rgba(15, 15, 15, 0.95);
         backdrop-filter: blur(20px);
+        border-left: 1px solid var(--glass-border);
     }
 
     .sidebar.open {
         right: 0;
     }
 
-    .sidebar-overlay {
+    .info-sidebar {
         position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-        z-index: 999;
-        display: none;
+        left: -100%;
+        right: auto;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 320px;
+        z-index: 2000;
+        transition: left 0.3s ease-in-out;
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+        background: rgba(15, 15, 15, 0.95);
+        backdrop-filter: blur(20px);
+        border-right: 1px solid var(--glass-border);
     }
 
-    .sidebar-overlay.active {
-        display: block;
+    .info-sidebar.open {
+        left: 0;
     }
 
-    .auth-card {
-        padding: 2rem;
+    .main-content {
+        width: 100%;
+        min-width: 100%;
+        flex: none;
+        overflow-x: hidden;
     }
 
-    .dashboard-content,
-    .profile-container {
-        padding: 1rem;
-    }
-
-    .search-section,
-    .rooms-section {
-        padding: 1.5rem;
-    }
-
-    .rooms-list {
-        grid-template-columns: 1fr;
+    .app-container {
+        overflow: hidden;
     }
 
     .chat-header {
-        padding: 0 0.75rem;
+        padding: 0 0.5rem;
         height: 60px;
-        gap: 0.5rem;
-    }
-
-    .room-name {
-        font-size: 0.95rem;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
     }
 
     .header-actions {
-        gap: 0.4rem;
+        gap: 0.25rem;
     }
 
-    .invite-members-btn,
-    .call-btn,
-    .back-btn,
-    .menu-toggle,
-    .voice-btn,
-    .file-btn {
-        width: 44px;
-        height: 44px;
-        font-size: 1.25rem;
-        border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .room-info-header {
+        max-width: 150px;
+        overflow: hidden;
     }
 
-    .invite-members-btn i,
-    .call-btn i,
-    .back-btn i,
-    .menu-toggle i,
-    .voice-btn i,
-    .file-btn i {
-        font-size: 1.5rem;
+    .room-name {
+        font-size: 0.9rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    .messages-container {
+        padding: 1rem 0.5rem;
+        width: 100%;
     }
 
     .message-wrapper {
-        max-width: 95%;
-    }
-
-    .message-avatar {
-        width: 32px;
-        height: 32px;
-    }
-
-    .message-box {
-        padding: 0.6rem 0.8rem;
-    }
-
-    .message-box .content {
-        font-size: 0.9rem;
+        max-width: 92%;
     }
 
     .input-area {
-        padding: 1rem;
+        padding: 0.5rem;
+        gap: 0.4rem;
+        width: 100%;
+    }
+
+    .input-actions-left {
+        gap: 0.2rem;
+    }
+
+    .action-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1.1rem;
+    }
+
+    .input-wrapper input {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    #message-form {
+        gap: 0.4rem;
     }
 }
