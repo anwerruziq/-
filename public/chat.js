@@ -54,8 +54,14 @@ const headerRoomInfo = document.getElementById('header-room-info');
 
 let isAdmin = false;
 
+// Header Elements
+const headerInviteBtn = document.getElementById('header-invite-btn');
+const headerSettingsBtn = document.getElementById('header-settings-btn');
+const stickyNotification = document.getElementById('sticky-notification');
+const notificationText = document.getElementById('notification-text');
+const closeNotification = document.getElementById('close-notification');
+
 // Invite members modal elements
-const inviteMembersBtn = document.getElementById('invite-members-btn');
 const inviteMembersModal = document.getElementById('invite-members-modal');
 const closeInviteModal = document.getElementById('close-invite-modal');
 const inviteSearchInput = document.getElementById('invite-search-input');
@@ -173,6 +179,8 @@ messageForm.addEventListener('submit', (e) => {
         messageInput.value = '';
         sendBtn.innerHTML = "<i class='bx bxs-like'></i>";
         messageInput.focus();
+    } else {
+        socket.emit('send_message', { roomId, text: '👍' });
     }
 });
 
@@ -326,10 +334,76 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Room Settings logic
+// Header Buttons Logic
+if (headerInviteBtn && inviteMembersModal) {
+    headerInviteBtn.addEventListener('click', () => {
+        inviteMembersModal.style.display = 'flex';
+        inviteSearchInput.value = '';
+        inviteSearchResults.innerHTML = '<div class="search-hint">ابحث عن مستخدمين لدعوتهم للغرفة</div>';
+    });
+}
+
+if (headerSettingsBtn && roomSettingsModal) {
+    headerSettingsBtn.addEventListener('click', () => {
+        roomSettingsModal.style.display = 'flex';
+    });
+}
+
+// Room Settings logic (Legacy & New)
 if (roomSettingsBtn && roomSettingsModal) {
     roomSettingsBtn.addEventListener('click', () => {
         roomSettingsModal.style.display = 'flex';
+    });
+}
+
+// Sticky Notifications
+socket.on('user_joined', (data) => {
+    showStickyNotification(`انضم ${data.username} إلى المحادثة`);
+});
+
+socket.on('user_left', (data) => {
+    showStickyNotification(`غادر ${data.username} المحادثة`);
+});
+
+function showStickyNotification(message) {
+    if (!stickyNotification || !notificationText) return;
+    notificationText.textContent = message;
+    stickyNotification.classList.add('active');
+
+    // Auto hide after 5 seconds
+    setTimeout(() => {
+        stickyNotification.classList.remove('active');
+    }, 5000);
+}
+
+if (closeNotification) {
+    closeNotification.addEventListener('click', () => {
+        stickyNotification.classList.remove('active');
+    });
+}
+
+// Delete Room Logic
+const deleteRoomBtn = document.getElementById('delete-room-btn');
+if (deleteRoomBtn) {
+    deleteRoomBtn.addEventListener('click', async () => {
+        if (confirm('هل أنت متأكد تماماً؟ هذا الإجراء سيحذف الغرفة وكافة محتوياتها ولا يمكن التراجع عنه.')) {
+            try {
+                const response = await fetch(`/api/rooms/${roomId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('تم حذف الغرفة بنجاح');
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert(data.error || 'فشل حذف الغرفة');
+                }
+            } catch (error) {
+                console.error('Delete room error:', error);
+                alert('خطأ في الاتصال');
+            }
+        }
     });
 }
 
@@ -515,11 +589,6 @@ if (logoutBtnSidebar) {
 // ============= Invite Members =============
 
 // Open invite modal
-inviteMembersBtn.addEventListener('click', () => {
-    inviteMembersModal.style.display = 'flex';
-    inviteSearchInput.value = '';
-    inviteSearchResults.innerHTML = '<div class="search-hint">ابحث عن مستخدمين لدعوتهم للغرفة</div>';
-});
 
 // Close invite modal
 closeInviteModal.addEventListener('click', () => {

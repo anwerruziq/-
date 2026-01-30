@@ -319,6 +319,41 @@ app.post('/api/rooms', requireAuth, async (req, res) => {
   }
 });
 
+// Delete room
+app.delete('/api/rooms/:id', requireAuth, async (req, res) => {
+  const roomId = req.params.id;
+  const userId = req.session.userId;
+
+  try {
+    // Verify ownership/admin status
+    const room = await db.prepare('SELECT creator_id FROM rooms WHERE id = ?').get(roomId);
+
+    if (!room) {
+      return res.status(404).json({ error: 'الغرفة غير موجودة' });
+    }
+
+    if (room.creator_id !== userId) {
+      return res.status(403).json({ error: 'غير مصرح لك بحذف هذا الغرفة' });
+    }
+
+    // Delete room and members (cascade should handle messages if foreign keys set, but doing manually to be safe)
+    const deleteMembers = db.prepare('DELETE FROM room_members WHERE room_id = ?');
+    const deleteMessages = db.prepare('DELETE FROM messages WHERE room_id = ?');
+    const deleteRoom = db.prepare('DELETE FROM rooms WHERE id = ?');
+
+    db.transaction(() => {
+      deleteMembers.run(roomId);
+      deleteMessages.run(roomId);
+      deleteRoom.run(roomId);
+    })();
+
+    res.json({ success: true, message: 'تم حذف الغرفة بنجاح' });
+  } catch (error) {
+    console.error('Delete room error:', error);
+    res.status(500).json({ error: 'حدث خطأ أثناء حذف الغرفة' });
+  }
+});
+
 // Update room settings (Admin only)
 app.put('/api/rooms/:roomId', requireAuth, (req, res) => {
   const { roomId } = req.params;
@@ -481,15 +516,45 @@ io.on('connection', (socket) => {
     console.log(`User ${userId} authenticated`);
   });
 
-  socket.on('join_room', (roomId) => {
+  socket.on('join_room', async (roomId) => {
     const rId = String(roomId);
     socket.join(rId);
     console.log(`User ${socket.userId} joined room ${rId}`);
+
+    // Fetch user info to notify others
+    try {
+      const user = await db.prepare('SELECT username FROM users WHERE id = ?').get(socket.userId);
+      if (user) {
+        socket.to(rId).emit('user_joined', { username: user.username, userId: socket.userId });
+      }
+    } catch (err) {
+      console.error('Error fetching user for join notification:', err);
+    }
   });
 
-  socket.on('leave_room', (roomId) => {
+  socket.on('leave_room', async (roomId) => {
     socket.leave(roomId);
     console.log(`User ${socket.userId} left room ${roomId}`);
+
+    // Notify others
+    try {
+      const user = await db.prepare('SELECT username FROM users WHERE id = ?').get(socket.userId);
+      if (user) {
+        socket.to(roomId).emit('user_left', { username: user.username, userId: socket.userId });
+      }
+    } catch (err) {
+      console.error('Error fetching user for leave notification:', err);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    // Note: We might want to track which room they were in to notify leave, 
+    // but standard disconnect doesn't easily give room info unless we track it.
+    // For now, explicit leave is handled.
+    if (socket.userId) {
+      connectedUsers.delete(socket.userId);
+    }
+    console.log('User disconnected:', socket.id);
   });
 
   socket.on('send_message', async (data) => {
